@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <script src="js/gamedata.js" defer></script>
+    <script src="js/app.js" defer></script>
+    <script src="js/submit.search.js" defer></script>
+  <meta charset="utf-8" />
+  <title>MetaBreak — Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Optional futuristic fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#070b16;
+      --bg-2:#0f1a2b;
+      --neon:#5be3ff;
+      --neon-2:#b05bff;
+      --accent:#00ffc6;
+      --grid:#1a2944;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:#d7e2ff;
+      background: radial-gradient(1200px 600px at 70% 20%, #0e1530 0%, #070b16 60%) no-repeat,
+                  radial-gradient(900px 900px at 0% 100%, #0a1130 0%, #070b16 60%) no-repeat;
+      font-family: Rajdhani, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      overflow:hidden; /* keep the hero immersive */
+    }
+
+    /* Animated aurora veil */
+    .veil{
+      position:fixed; inset:0;
+      background: conic-gradient(from 0deg at 50% 50%,
+        rgba(91,227,255,0.12), rgba(176,91,255,0.10), rgba(0,255,198,0.10), rgba(91,227,255,0.12));
+      mix-blend-mode: screen; filter: blur(40px) saturate(130%);
+      animation: spin 40s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Synthwave grid floor */
+    .grid{
+      position:fixed; inset:0; transform: perspective(700px) rotateX(60deg) translateY(35vh);
+      background:
+        linear-gradient(to right, transparent 96%, var(--grid) 96% 100%) 0 0/4vw 4vw,
+        linear-gradient(to bottom, transparent 96%, var(--grid) 96% 100%) 0 0/4vw 4vw;
+      opacity:.5; filter: drop-shadow(0 -2px 6px rgba(91,227,255,.25));
+      pointer-events:none;
+    }
+
+    /* Starfield */
+    .stars, .stars:before, .stars:after{
+      position:fixed; inset:-50vmax; content:"";
+      background:
+        radial-gradient(2px 2px at 20% 30%, #fff8 60%, transparent 61%),
+        radial-gradient(1.5px 1.5px at 70% 60%, #fff6 60%, transparent 61%),
+        radial-gradient(1.2px 1.2px at 40% 80%, #fff4 60%, transparent 61%);
+      animation: drift 90s linear infinite;
+      pointer-events:none; opacity:.35;
+    }
+    .stars:before{animation-duration:120s; opacity:.25}
+    .stars:after{animation-duration:160s; opacity:.20}
+    @keyframes drift { to { transform: translate3d(10vmax, -10vmax, 0); } }
+
+    /* Center stage */
+    .hero{
+      position:relative; height:100vh; display:grid; place-items:center; text-align:center; padding:2rem;
+    }
+
+    /* Neon headline with subtle glitch */
+    .title{
+      font-family: Orbitron, Rajdhani, sans-serif;
+      font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+      font-size: clamp(2.5rem, 6vw, 6rem);
+      color:var(--neon);
+      text-shadow:
+        0 0 10px color-mix(in oklab, var(--neon) 70%, #000),
+        0 0 30px color-mix(in oklab, var(--neon) 50%, #000),
+        0 0 60px color-mix(in oklab, var(--neon-2) 40%, #000);
+      position:relative; display:inline-block;
+      animation: pulse 3.2s ease-in-out infinite;
+    }
+    .title::after{
+      content:"META\u200bBREAK"; 
+      position:absolute; inset:0; left:2px; top:-1px;
+      color:var(--neon-2); mix-blend-mode:screen; opacity:.25;
+      clip-path: inset(0 0 45% 0);
+      animation: glitch 2.4s infinite steps(18);
+      pointer-events:none;
+    }
+    @keyframes pulse { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.2)} }
+    @keyframes glitch {
+      0% { transform: translate(0,0); }
+      20% { transform: translate(-1px,1px); }
+      40% { transform: translate(1px,-1px); }
+      60% { transform: translate(-2px,0); }
+      80% { transform: translate(1px,2px); }
+      100% { transform: translate(0,0); }
+    }
+
+    .subtitle{
+      margin-top: .75rem;
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      color:#c7d6ff;
+      text-shadow: 0 0 8px rgba(91,227,255,.25);
+      opacity:.95;
+    }
+
+    /* Call-to-action (optional for later nav) */
+    .actions{
+      display:flex; gap:1rem; justify-content:center; margin-top:2rem; flex-wrap:wrap;
+    }
+    .btn{
+      --glow: color-mix(in oklab, var(--accent) 70%, #fff 0%);
+      padding:.9rem 1.15rem; border:1px solid var(--accent);
+      background: linear-gradient(180deg, rgba(0,255,198,.1), rgba(0,0,0,.08));
+      color:#eafffb; font-weight:600; letter-spacing:.03em; border-radius:10px;
+      box-shadow: 0 0 12px rgba(0,255,198,.25), inset 0 0 14px rgba(0,255,198,.08);
+      text-decoration:none; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      backdrop-filter: blur(4px);
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow: 0 0 20px rgba(0,255,198,.45), inset 0 0 20px rgba(0,255,198,.12); filter: saturate(120%); }
+    .btn.secondary{ --glow: var(--neon-2); border-color: var(--neon-2); box-shadow: 0 0 12px rgba(176,91,255,.25), inset 0 0 14px rgba(176,91,255,.08); }
+
+    /* Footer note */
+    .foot{
+      position:fixed; left:0; right:0; bottom:0; text-align:center;
+      color:#90a8ff; font-size:.85rem; padding: .8rem 1rem; opacity:.85;
+      background: linear-gradient(180deg, transparent, rgba(10,16,30,.55));
+      backdrop-filter: blur(2px);
+    }
+
+    /* Small accessibility tweaks */
+    @media (prefers-reduced-motion: reduce){
+      .veil,.stars,.stars:before,.stars:after,.title::after{ animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Effects layers -->
+  <div class="veil" aria-hidden="true"></div>
+  <div class="stars" aria-hidden="true"></div>
+  <div class="grid" aria-hidden="true"></div>
+
+  <!-- Hero content -->
+  <main class="hero" role="main">
+    <section>
+      <h1 class="title" aria-label="MetaBreak">META<span style="letter-spacing:.12em">BREAK</span></h1>
+      <h2 class="subtitle"><strong> Your go-to platform for honest reviews on the latest in gaming</strong></h2>
+      <p class="subtitle">Created by <strong>kylie Marxen (771874)</strong></p>
+
+      <!-- Optional actions (you can hook these up later) -->
+      <div class="actions" aria-hidden="true">
+        <a class="btn secondary" href="login.html">Log In</a>
+        <a class="btn" href="reviews.html">Browse Reviews</a>
+        <a class="btn secondary" href="submit.html">Submit a Review</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer/testing note -->
+  <div class="foot">
+    Intended test browsers: Chrome (latest), Edge (latest), Firefox (latest), Safari 17+.
+  </div>
+</body>
+</html>

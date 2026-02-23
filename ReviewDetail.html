@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MetaBreak – Review Detail</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#070b16; --bg-2:#0f1a2b; --bg-3:#151b31;
+      --neon:#5be3ff; --neon-2:#b05bff; --accent:#00ffc6;
+      --border:#273055; --text:#e8eeff; --muted:#a8b3d9;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg-1); color:var(--text);
+      font-family:Rajdhani,system-ui,sans-serif; min-height:100vh;
+    }
+
+    /* Header */
+    .header{
+      background:linear-gradient(180deg, rgba(15,26,43,.95), rgba(7,11,22,.85));
+      backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
+      padding:1rem 0; position:sticky; top:0; z-index:100;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+    }
+    .header-inner{
+      max-width:1200px; margin:0 auto; padding:0 1rem;
+      display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+    }
+    .logo{
+      font-family:Orbitron,sans-serif; font-weight:800; font-size:1.5rem;
+      color:var(--neon); text-decoration:none; letter-spacing:.08em;
+      text-shadow:0 0 10px rgba(91,227,255,.5);
+    }
+    .nav{display:flex; gap:.75rem; flex-wrap:wrap}
+    .nav a{
+      padding:.5rem 1rem; background:rgba(29,108,255,.1); border:1px solid rgba(29,108,255,.3);
+      color:var(--text); text-decoration:none; border-radius:8px; font-weight:600;
+      transition:all .2s ease;
+    }
+    .nav a:hover{background:rgba(29,108,255,.2); border-color:rgba(29,108,255,.5)}
+
+    /* Main container */
+    .container{max-width:1000px; margin:2rem auto; padding:0 1rem}
+
+    /* Loading */
+    .loading{text-align:center; padding:4rem 1rem}
+    .spinner{
+      border:4px solid var(--border); border-top:4px solid var(--neon);
+      border-radius:50%; width:50px; height:50px;
+      animation:spin 1s linear infinite; margin:0 auto;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Back button */
+    .back-btn{
+      display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem;
+      background:var(--bg-3); border:1px solid var(--border); border-radius:8px;
+      color:var(--text); text-decoration:none; font-weight:600; transition:all .2s ease;
+      margin-bottom:1.5rem;
+    }
+    .back-btn:hover{background:rgba(91,227,255,.1); border-color:var(--neon)}
+
+    /* Review header */
+    .review-header{
+      background:var(--bg-3); border:1px solid var(--border); border-radius:12px;
+      padding:1.5rem; margin-bottom:1.5rem; display:flex; gap:1.5rem; flex-wrap:wrap;
+    }
+    .game-cover{
+      width:180px; height:240px; object-fit:cover; border-radius:10px;
+      border:2px solid var(--border); flex-shrink:0;
+    }
+    .review-meta{flex:1; min-width:250px}
+    .review-title{
+      font-family:Orbitron,sans-serif; font-size:1.75rem; font-weight:700;
+      color:var(--neon); margin:0 0 .5rem; line-height:1.2;
+    }
+    .game-title{
+      font-size:1.2rem; color:var(--accent); margin:0 0 .75rem; font-weight:600;
+    }
+    .meta-grid{
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+      gap:.75rem; margin-top:1rem;
+    }
+    .meta-item{
+      background:var(--bg-1); border:1px solid var(--border); border-radius:8px;
+      padding:.75rem; text-align:center;
+    }
+    .meta-label{font-size:.85rem; color:var(--muted); margin-bottom:.25rem}
+    .meta-value{font-size:1.1rem; font-weight:700; color:var(--text)}
+
+    /* Score badge */
+    .score-badge{
+      display:inline-block; padding:.5rem 1rem; border-radius:50px;
+      font-size:2rem; font-weight:800; margin-top:.5rem;
+      background:linear-gradient(135deg, var(--neon), var(--neon-2));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text; border:2px solid var(--neon);
+    }
+
+    /* Stars */
+    .stars{
+      color:#fbbf24; font-size:1.5rem; letter-spacing:.2rem; margin-top:.5rem;
+    }
+
+    /* Votes */
+    .votes{
+      display:flex; gap:1rem; margin-top:1rem;
+    }
+    .vote-btn{
+      padding:.5rem 1rem; border-radius:8px; border:1px solid var(--border);
+      background:var(--bg-1); color:var(--text); cursor:pointer;
+      font:inherit; font-weight:600; transition:all .2s ease;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .vote-btn:hover{background:var(--bg-2)}
+    .vote-btn.upvote:hover{border-color:var(--accent); color:var(--accent)}
+    .vote-btn.downvote:hover{border-color:#ef4444; color:#ef4444}
+
+    /* Review content */
+    .review-content{
+      background:var(--bg-3); border:1px solid var(--border); border-radius:12px;
+      padding:1.5rem; margin-bottom:1.5rem;
+    }
+    .review-content h2{
+      font-family:Orbitron,sans-serif; color:var(--neon); font-size:1.3rem;
+      margin:0 0 1rem; border-bottom:2px solid var(--border); padding-bottom:.5rem;
+    }
+    .review-text{
+      color:var(--text); line-height:1.8; font-size:1.05rem;
+      white-space:pre-wrap; word-wrap:break-word;
+    }
+
+    /* Review footer */
+    .review-footer{
+      background:var(--bg-3); border:1px solid var(--border); border-radius:12px;
+      padding:1rem 1.5rem; display:flex; justify-content:space-between; align-items:center;
+      flex-wrap:wrap; gap:1rem;
+    }
+    .author-info{
+      display:flex; align-items:center; gap:.75rem;
+    }
+    .avatar{
+      width:48px; height:48px; border-radius:50%; background:var(--neon);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:1.2rem; color:var(--bg-1);
+    }
+    .author-details{display:flex; flex-direction:column}
+    .author-name{font-weight:600; color:var(--text)}
+    .review-date{font-size:.9rem; color:var(--muted)}
+
+    /* Action buttons */
+    .actions{display:flex; gap:.75rem; flex-wrap:wrap}
+    .btn{
+      padding:.6rem 1.2rem; border-radius:8px; font:inherit; font-weight:600;
+      cursor:pointer; transition:all .2s ease; text-decoration:none;
+      display:inline-flex; align-items:center; gap:.5rem;
+    }
+    .btn-edit{
+      background:rgba(91,227,255,.1); border:1px solid var(--neon); color:var(--neon);
+    }
+    .btn-edit:hover{background:rgba(91,227,255,.2)}
+    .btn-delete{
+      background:rgba(239,68,68,.1); border:1px solid #ef4444; color:#ef4444;
+    }
+    .btn-delete:hover{background:rgba(239,68,68,.2)}
+
+    /* Comments section */
+    .comments-section{
+      background:var(--bg-3); border:1px solid var(--border); border-radius:12px;
+      padding:1.5rem; margin-top:1.5rem;
+    }
+    .comments-section h2{
+      font-family:Orbitron,sans-serif; color:var(--neon); font-size:1.3rem;
+      margin:0 0 1rem; border-bottom:2px solid var(--border); padding-bottom:.5rem;
+    }
+    .comment{
+      background:var(--bg-1); border:1px solid var(--border); border-radius:8px;
+      padding:1rem; margin-bottom:.75rem;
+    }
+    .comment-header{
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:.5rem; flex-wrap:wrap; gap:.5rem;
+    }
+    .comment-author{font-weight:600; color:var(--accent)}
+    .comment-date{font-size:.85rem; color:var(--muted)}
+    .comment-text{color:var(--text); line-height:1.6}
+    .comment-delete{
+      background:none; border:none; color:#ef4444; cursor:pointer;
+      font-size:.85rem; padding:.25rem .5rem; border-radius:4px;
+    }
+    .comment-delete:hover{background:rgba(239,68,68,.1)}
+
+    /* Comment form */
+    .comment-form{
+      margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border);
+    }
+    .comment-form h3{color:var(--text); margin:0 0 1rem; font-size:1.1rem}
+    .comment-form textarea{
+      width:100%; padding:.75rem; background:var(--bg-1); border:1px solid var(--border);
+      color:var(--text); border-radius:8px; font:inherit; margin-bottom:.75rem;
+    }
+    .comment-form textarea:focus{
+      outline:none; border-color:var(--neon); box-shadow:0 0 8px rgba(91,227,255,.3);
+    }
+    .comment-form button{
+      padding:.75rem 1.5rem; background:var(--accent); border:none;
+      color:var(--bg-1); font:inherit; font-weight:600; border-radius:8px;
+      cursor:pointer; transition:all .2s ease;
+    }
+    .comment-form button:hover{
+      transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,255,198,.4);
+    }
+
+    /* Error/Empty states */
+    .error{
+      text-align:center; padding:3rem 1rem; color:var(--muted);
+    }
+    .error h2{color:#ef4444; margin-bottom:.5rem}
+
+    @media (max-width: 640px){
+      .game-cover{width:140px; height:190px}
+      .review-header{flex-direction:column; align-items:center; text-align:center}
+      .meta-grid{grid-template-columns:1fr 1fr}
+      .review-footer{flex-direction:column; align-items:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">METABREAK</a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="reviews.html">Reviews</a>
+        <a href="submit.html">Submit Review</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container" id="mainContent">
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Loading review...</p>
+    </div>
+  </main>
+
+  <script src="js/api-client.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const reviewId = parseInt(urlParams.get('id'));
+    let currentReview = null;
+    let currentUser = null;
+
+    // Get current user if logged in
+    if (API.isAuthenticated()) {
+      currentUser = API.getCurrentUserFromStorage();
+    }
+
+    // Load review data
+    async function loadReview() {
+      try {
+        currentReview = await API.getReview(reviewId);
+        renderReview();
+        loadComments();
+      } catch (error) {
+        console.error('Error loading review:', error);
+        renderError();
+      }
+    }
+
+    // Render review
+    function renderReview() {
+      const main = document.getElementById('mainContent');
+      const stars = scoreToStars(currentReview.score);
+      const canEdit = currentUser && (currentUser.id === currentReview.author.id || currentUser.role === 'admin' || currentUser.role === 'moderator');
+
+      main.innerHTML = `
+        <a href="reviews.html" class="back-btn">← Back to Reviews</a>
+
+        <!-- Review Header -->
+        <div class="review-header">
+          <img class="game-cover" 
+               src="${currentReview.game.cover_url || 'assets/placeholder.png'}" 
+               alt="${currentReview.game.title} cover" 
+               onerror="this.src='assets/placeholder.png'">
+          <div class="review-meta">
+            <h1 class="review-title">${escapeHtml(currentReview.title)}</h1>
+            <p class="game-title">${escapeHtml(currentReview.game.title)}</p>
+            <div class="stars">${stars}</div>
+            <div class="score-badge">${currentReview.score}</div>
+            
+            <div class="meta-grid">
+              <div class="meta-item">
+                <div class="meta-label">Platform</div>
+                <div class="meta-value">${escapeHtml(currentReview.platform)}</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Difficulty</div>
+                <div class="meta-value">${currentReview.difficulty}/5</div>
+              </div>
+            </div>
+
+            ${API.isAuthenticated() ? `
+              <div class="votes">
+                <button class="vote-btn upvote" onclick="vote('upvote')">
+                  👍 ${currentReview.upvotes}
+                </button>
+                <button class="vote-btn downvote" onclick="vote('downvote')">
+                  👎 ${currentReview.downvotes}
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Review Content -->
+        <div class="review-content">
+          <h2>Full Review</h2>
+          <div class="review-text">${escapeHtml(currentReview.content)}</div>
+        </div>
+
+        <!-- Review Footer -->
+        <div class="review-footer">
+          <div class="author-info">
+            <div class="avatar">${getInitials(currentReview.author.username)}</div>
+            <div class="author-details">
+              <span class="author-name">${escapeHtml(currentReview.author.username)}</span>
+              <span class="review-date">${formatDate(currentReview.created_at)}</span>
+            </div>
+          </div>
+          ${canEdit ? `
+            <div class="actions">
+              <button class="btn btn-delete" onclick="deleteReview()">
+                🗑️ Delete
+              </button>
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+          <h2>Comments (<span id="commentCount">${currentReview.comment_count}</span>)</h2>
+          <div id="commentsList"></div>
+          
+          ${API.isAuthenticated() ? `
+            <form class="comment-form" id="commentForm" onsubmit="addComment(event)">
+              <h3>Leave a Comment</h3>
+              <textarea id="commentText" rows="4" placeholder="Write your comment..." required></textarea>
+              <button type="submit">Post Comment</button>
+            </form>
+          ` : `
+            <p style="text-align:center; color:var(--muted); margin-top:1rem">
+              <a href="login.html" style="color:var(--neon)">Login</a> to leave a comment
+            </p>
+          `}
+        </div>
+      `;
+    }
+
+    // Load comments
+    async function loadComments() {
+      try {
+        const comments = await API.getComments(reviewId);
+        renderComments(comments);
+      } catch (error) {
+        console.error('Error loading comments:', error);
+      }
+    }
+
+    // Render comments
+    function renderComments(comments) {
+      const container = document.getElementById('commentsList');
+      const countSpan = document.getElementById('commentCount');
+      
+      if (countSpan) countSpan.textContent = comments.length;
+      
+      if (comments.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted); text-align:center">No comments yet. Be the first to comment!</p>';
+        return;
+      }
+
+      container.innerHTML = comments.map(c => {
+        const canDelete = currentUser && (currentUser.id === c.author.id || currentUser.role === 'admin' || currentUser.role === 'moderator');
+        
+        return `
+          <div class="comment">
+            <div class="comment-header">
+              <span class="comment-author">${escapeHtml(c.author.username)}</span>
+              <div style="display:flex; gap:1rem; align-items:center">
+                <span class="comment-date">${formatDate(c.created_at)}</span>
+                ${canDelete ? `<button class="comment-delete" onclick="deleteComment(${c.id})">Delete</button>` : ''}
+              </div>
+            </div>
+            <div class="comment-text">${escapeHtml(c.content)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Add comment
+    async function addComment(e) {
+      e.preventDefault();
+      
+      const text = document.getElementById('commentText').value.trim();
+      
+      if (!text) {
+        alert('Please write a comment!');
+        return;
+      }
+
+      try {
+        await API.createComment(reviewId, text);
+        document.getElementById('commentForm').reset();
+        loadComments();
+        showNotification('Comment added!', 'success');
+      } catch (error) {
+        showNotification(error.message || 'Failed to add comment', 'error');
+      }
+    }
+
+    // Delete comment
+    async function deleteComment(commentId) {
+      if (!confirm('Delete this comment?')) return;
+      
+      try {
+        await API.deleteComment(commentId);
+        loadComments();
+        showNotification('Comment deleted', 'success');
+      } catch (error) {
+        showNotification(error.message || 'Failed to delete comment', 'error');
+      }
+    }
+
+    // Vote
+    async function vote(voteType) {
+      try {
+        const result = await API.voteReview(reviewId, voteType);
+        currentReview.upvotes = result.upvotes;
+        currentReview.downvotes = result.downvotes;
+        renderReview();
+        loadComments();
+        showNotification('Vote recorded!', 'success');
+      } catch (error) {
+        showNotification(error.message || 'Failed to vote', 'error');
+      }
+    }
+
+    // Delete review
+    async function deleteReview() {
+      if (!confirm('Are you sure you want to delete this review? This cannot be undone.')) return;
+      
+      try {
+        await API.deleteReview(reviewId);
+        showNotification('Review deleted!', 'success');
+        setTimeout(() => {
+          window.location.href = 'reviews.html';
+        }, 1000);
+      } catch (error) {
+        showNotification(error.message || 'Failed to delete review', 'error');
+      }
+    }
+
+    // Render error
+    function renderError() {
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+        <div class="error">
+          <h2>Review Not Found</h2>
+          <p>The review you're looking for doesn't exist or has been deleted.</p>
+          <a href="reviews.html" class="back-btn" style="margin-top:1rem">← Back to Reviews</a>
+        </div>
+      `;
+    }
+
+    // Helper functions
+    function scoreToStars(score) {
+      const stars = Math.round((score / 100) * 5);
+      return '★'.repeat(stars) + '☆'.repeat(5 - stars);
+    }
+
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      return date.toLocaleDateString('en-US', { 
+        month: 'long', day: 'numeric', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function getInitials(name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initialize
+    if (!reviewId || isNaN(reviewId)) {
+      renderError();
+    } else {
+      loadReview();
+    }
+  </script>
+</body>
+</html>

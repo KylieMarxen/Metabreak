@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MetaBreak – Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#070b16; --bg-2:#0f1a2b; --bg-3:#151b31;
+      --neon:#5be3ff; --neon-2:#b05bff; --accent:#00ffc6;
+      --border:#273055; --text:#e8eeff; --muted:#a8b3d9;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg-1); color:var(--text);
+      font-family:Rajdhani,system-ui,sans-serif; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:2rem;
+    }
+
+    /* Animated background */
+    .bg-grid{
+      position:fixed; inset:0;
+      background:
+        linear-gradient(to right, transparent 96%, var(--border) 96% 100%) 0 0/4vw 4vw,
+        linear-gradient(to bottom, transparent 96%, var(--border) 96% 100%) 0 0/4vw 4vw;
+      opacity:.3;
+      pointer-events:none;
+      animation: gridMove 20s linear infinite;
+    }
+    @keyframes gridMove {
+      to { transform: translateY(4vw); }
+    }
+
+    /* Card container */
+    .auth-card{
+      background:var(--bg-3); border:2px solid var(--border); border-radius:16px;
+      padding:2.5rem; max-width:450px; width:100%;
+      box-shadow:0 8px 32px rgba(0,0,0,.4);
+      position:relative; z-index:1;
+    }
+
+    /* Logo */
+    .logo{
+      font-family:Orbitron,sans-serif; font-weight:800; font-size:2rem;
+      color:var(--neon); text-align:center; margin:0 0 .5rem;
+      text-shadow:0 0 10px rgba(91,227,255,.5);
+    }
+
+    .subtitle{
+      text-align:center; color:var(--muted); margin:0 0 2rem;
+      font-size:1.1rem;
+    }
+
+    /* Form elements */
+    .form-group{
+      margin-bottom:1.5rem;
+    }
+
+    label{
+      display:block; margin-bottom:.5rem; color:var(--text);
+      font-weight:600; font-size:.95rem;
+    }
+
+    input{
+      width:100%; padding:.9rem; background:var(--bg-1);
+      border:2px solid var(--border); color:var(--text);
+      border-radius:8px; font:inherit; font-size:1rem;
+      transition:all .2s ease;
+    }
+
+    input:focus{
+      outline:none; border-color:var(--neon);
+      box-shadow:0 0 12px rgba(91,227,255,.3);
+    }
+
+    input::placeholder{
+      color:var(--muted); opacity:.6;
+    }
+
+    /* Button */
+    .btn{
+      width:100%; padding:1rem; background:var(--accent);
+      border:none; color:var(--bg-1); font:inherit;
+      font-weight:700; font-size:1.05rem; border-radius:8px;
+      cursor:pointer; transition:all .2s ease;
+      text-transform:uppercase; letter-spacing:.05em;
+    }
+
+    .btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(0,255,198,.4);
+    }
+
+    .btn:active{
+      transform:translateY(0);
+    }
+
+    .btn:disabled{
+      opacity:.5; cursor:not-allowed;
+      transform:none;
+    }
+
+    /* Links */
+    .auth-links{
+      text-align:center; margin-top:1.5rem;
+      color:var(--muted);
+    }
+
+    .auth-links a{
+      color:var(--neon); text-decoration:none;
+      font-weight:600; transition:color .2s ease;
+    }
+
+    .auth-links a:hover{
+      color:var(--accent);
+    }
+
+    /* Error message */
+    .error-message{
+      background:rgba(239,68,68,.1); border:1px solid #ef4444;
+      color:#ef4444; padding:.75rem 1rem; border-radius:8px;
+      margin-bottom:1.5rem; display:none;
+      font-size:.9rem;
+    }
+
+    .error-message.show{
+      display:block;
+    }
+
+    /* Success message */
+    .success-message{
+      background:rgba(0,255,198,.1); border:1px solid var(--accent);
+      color:var(--accent); padding:.75rem 1rem; border-radius:8px;
+      margin-bottom:1.5rem; display:none;
+      font-size:.9rem;
+    }
+
+    .success-message.show{
+      display:block;
+    }
+
+    /* Back link */
+    .back-link{
+      text-align:center; margin-bottom:1.5rem;
+    }
+
+    .back-link a{
+      color:var(--muted); text-decoration:none;
+      font-size:.9rem; transition:color .2s ease;
+    }
+
+    .back-link a:hover{
+      color:var(--neon);
+    }
+
+    /* Demo credentials */
+    .demo-creds{
+      background:rgba(91,227,255,.05); border:1px solid var(--border);
+      padding:1rem; border-radius:8px; margin-bottom:1.5rem;
+      font-size:.9rem;
+    }
+
+    .demo-creds strong{
+      color:var(--neon);
+    }
+
+    .demo-creds code{
+      background:var(--bg-1); padding:.2rem .4rem;
+      border-radius:4px; color:var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="auth-card">
+    <div class="back-link">
+      <a href="index.html">← Back to Home</a>
+    </div>
+
+    <h1 class="logo">METABREAK</h1>
+    <p class="subtitle">Welcome Back</p>
+
+    <!-- Demo credentials info -->
+    <div class="demo-creds">
+      <strong>Demo Account:</strong><br>
+      Username: <code>admin</code><br>
+      Password: <code>adminpass123</code>
+    </div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username"
+          placeholder="Enter your username"
+          required
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password"
+          placeholder="Enter your password"
+          required
+          autocomplete="current-password"
+        />
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">
+        Login
+      </button>
+    </form>
+
+    <div class="auth-links">
+      Don't have an account? <a href="register.html">Sign up here</a>
+    </div>
+  </div>
+
+  <script src="js/api-client.js"></script>
+  <script>
+    const form = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Clear messages
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+
+      // Get form values
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Validation
+      if (!username || !password) {
+        showError('Please enter both username and password');
+        return;
+      }
+
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Logging in...';
+
+      try {
+        // Login via API
+        const response = await API.login(username, password);
+        
+        showSuccess('Login successful! Redirecting...');
+        
+        // Redirect to reviews page after 1 second
+        setTimeout(() => {
+          window.location.href = 'reviews.html';
+        }, 1000);
+
+      } catch (error) {
+        showError(error.message || 'Login failed. Please check your credentials.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Login';
+      }
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+      
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.classList.add('show');
+      
+      // Scroll to top to show success
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Check if already logged in
+    if (API.isAuthenticated()) {
+      showSuccess('Already logged in! Redirecting...');
+      setTimeout(() => {
+        window.location.href = 'reviews.html';
+      }, 1000);
+    }
+
+    // Allow Enter key to submit from any input
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          form.dispatchEvent(new Event('submit'));
+        }
+      });
+    });
+  </script>
+</body>
+</html>

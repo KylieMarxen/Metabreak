@@ -1,0 +1,426 @@
+<!--Goals: 
+- display all submitted reviews as cards
+- search/filter by game title
+- pagination (12 per page)
+- click card -> goes to deatial page 
+ -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MetaBreak – Browse Reviews</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#070b16; --bg-2:#0f1a2b; --bg-3:#151b31;
+      --neon:#5be3ff; --neon-2:#b05bff; --accent:#00ffc6;
+      --border:#273055; --text:#e8eeff; --muted:#a8b3d9;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg-1); color:var(--text);
+      font-family:Rajdhani,system-ui,sans-serif; min-height:100vh;
+    }
+
+    /* Header */
+    .header{
+      background:linear-gradient(180deg, rgba(15,26,43,.95), rgba(7,11,22,.85));
+      backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
+      padding:1rem 0; position:sticky; top:0; z-index:100;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+    }
+    .header-inner{
+      max-width:1200px; margin:0 auto; padding:0 1rem;
+      display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+    }
+    .logo{
+      font-family:Orbitron,sans-serif; font-weight:800; font-size:1.5rem;
+      color:var(--neon); text-decoration:none; letter-spacing:.08em;
+      text-shadow:0 0 10px rgba(91,227,255,.5);
+    }
+    .nav{display:flex; gap:.75rem; flex-wrap:wrap; align-items:center}
+    .nav a, .nav button{
+      padding:.5rem 1rem; background:rgba(29,108,255,.1); border:1px solid rgba(29,108,255,.3);
+      color:var(--text); text-decoration:none; border-radius:8px; font-weight:600;
+      transition:all .2s ease; font:inherit; cursor:pointer;
+    }
+    .nav a:hover, .nav button:hover{background:rgba(29,108,255,.2); border-color:rgba(29,108,255,.5)}
+    .nav .user-info{color:var(--accent); padding:.5rem 1rem}
+
+    /* Main container */
+    .container{max-width:1200px; margin:2rem auto; padding:0 1rem}
+
+    /* Controls */
+    .controls{
+      background:var(--bg-3); border:1px solid var(--border); border-radius:12px;
+      padding:1.25rem; margin-bottom:2rem; display:flex; gap:1rem; flex-wrap:wrap;
+      align-items:center;
+    }
+    .controls > *{flex:1 1 200px}
+    .controls input, .controls select{
+      width:100%; padding:.75rem; background:var(--bg-1); border:1px solid var(--border);
+      color:var(--text); border-radius:8px; font:inherit;
+    }
+    .controls input:focus, .controls select:focus{
+      outline:none; border-color:var(--neon); box-shadow:0 0 8px rgba(91,227,255,.3);
+    }
+
+    /* Grid */
+    .grid{
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));
+      gap:1.5rem; margin-bottom:2rem;
+    }
+
+    /* Review Card */
+    .card{
+      background:var(--bg-3); border:1px solid var(--border); border-radius:12px;
+      padding:1.25rem; transition:all .25s ease; cursor:pointer;
+      display:flex; flex-direction:column; gap:1rem;
+      position:relative; overflow:hidden;
+    }
+    .card:hover{
+      border-color:var(--neon); transform:translateY(-4px);
+      box-shadow:0 8px 24px rgba(91,227,255,.2);
+    }
+    .card::before{
+      content:""; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--neon), var(--neon-2));
+      opacity:0; transition:opacity .25s ease;
+    }
+    .card:hover::before{opacity:1}
+
+    .card-header{display:flex; gap:1rem; align-items:flex-start}
+    .card-cover{
+      width:80px; height:80px; object-fit:cover; border-radius:8px;
+      border:1px solid var(--border); flex-shrink:0;
+    }
+    .card-info{flex:1; min-width:0}
+    .card-title{
+      font-weight:600; font-size:1.1rem; margin:0 0 .25rem;
+      color:var(--neon); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .card-game{
+      font-size:.95rem; color:var(--muted); margin:0;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+
+    .card-meta{
+      display:flex; gap:1rem; flex-wrap:wrap; font-size:.9rem; color:var(--muted);
+    }
+    .card-meta span{
+      display:flex; align-items:center; gap:.35rem;
+    }
+
+    .card-review{
+      color:var(--text); line-height:1.5; font-size:.95rem;
+      display:-webkit-box; -webkit-line-clamp:3; line-clamp:3; -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .card-footer{
+      display:flex; justify-content:space-between; align-items:center;
+      padding-top:.75rem; border-top:1px solid var(--border);
+    }
+    .card-author{font-size:.9rem; color:var(--muted)}
+    .card-score{
+      font-weight:700; font-size:1.25rem;
+      background:linear-gradient(135deg, var(--neon), var(--neon-2));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    /* Pagination */
+    .pagination{
+      display:flex; justify-content:center; gap:.5rem; flex-wrap:wrap;
+    }
+    .pagination button{
+      padding:.6rem 1rem; background:var(--bg-3); border:1px solid var(--border);
+      color:var(--text); border-radius:8px; cursor:pointer; font:inherit; font-weight:600;
+      transition:all .2s ease;
+    }
+    .pagination button:hover:not(:disabled){
+      background:rgba(91,227,255,.1); border-color:var(--neon);
+    }
+    .pagination button.active{
+      background:var(--neon); color:var(--bg-1); border-color:var(--neon);
+    }
+    .pagination button:disabled{opacity:.4; cursor:not-allowed}
+
+    /* Empty state */
+    .empty{
+      text-align:center; padding:4rem 1rem; color:var(--muted);
+    }
+    .empty h2{color:var(--neon); margin-bottom:.5rem}
+    .empty a{
+      display:inline-block; margin-top:1rem; padding:.75rem 1.5rem;
+      background:var(--accent); color:var(--bg-1); text-decoration:none;
+      border-radius:8px; font-weight:600; transition:all .2s ease;
+    }
+    .empty a:hover{transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,255,198,.4)}
+
+    /* Loading spinner */
+    .loading{
+      text-align:center; padding:4rem 1rem;
+    }
+    .spinner{
+      border:4px solid var(--border);
+      border-top:4px solid var(--neon);
+      border-radius:50%;
+      width:50px;
+      height:50px;
+      animation:spin 1s linear infinite;
+      margin:0 auto;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Stars */
+    .stars{color:#fbbf24; letter-spacing:.15rem; font-size:.9rem}
+
+    @media (max-width: 640px){
+      .controls{flex-direction:column}
+      .controls > *{flex:1 1 100%}
+      .grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">METABREAK</a>
+      <nav class="nav" id="navMenu">
+        <a href="index.html">Home</a>
+        <a href="reviews.html">Reviews</a>
+        <!-- Navigation will be populated by JavaScript -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <h1 style="font-family:Orbitron,sans-serif; color:var(--neon); margin-bottom:.5rem">Review Directory</h1>
+    <p style="color:var(--muted); margin-bottom:2rem">Browse all community reviews</p>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div>
+        <input type="text" id="searchInput" placeholder="🔍 Search by game or review title..." />
+      </div>
+      <div>
+        <select id="sortSelect">
+          <option value="newest">Sort: Newest First</option>
+          <option value="oldest">Sort: Oldest First</option>
+          <option value="score-high">Sort: Highest Score</option>
+          <option value="score-low">Sort: Lowest Score</option>
+          <option value="difficulty-high">Sort: Most Difficult</option>
+          <option value="difficulty-low">Sort: Easiest</option>
+          <option value="popular">Sort: Most Popular</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Review Grid -->
+    <div id="reviewGrid" class="grid"></div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination"></div>
+  </main>
+
+  <script src="js/api-client.js"></script>
+  <script>
+    let currentPage = 1;
+    let currentSort = 'newest';
+    let searchQuery = '';
+    let totalPages = 1;
+
+    // Initialize page
+    async function init() {
+      updateNavigation();
+      await loadReviews();
+      
+      // Event listeners
+      document.getElementById('searchInput').addEventListener('input', debounce(handleSearch, 500));
+      document.getElementById('sortSelect').addEventListener('change', handleSort);
+    }
+
+    // Update navigation based on auth status
+    function updateNavigation() {
+      const nav = document.getElementById('navMenu');
+      const user = API.getCurrentUserFromStorage();
+      
+      if (user) {
+        nav.innerHTML += `
+          <span class="user-info">👤 ${user.username}</span>
+          <a href="submit.html">Submit Review</a>
+          <button onclick="handleLogout()">Logout</button>
+        `;
+      } else {
+        nav.innerHTML += `
+          <a href="login.html">Login</a>
+          <a href="register.html">Register</a>
+        `;
+      }
+    }
+
+    // Load reviews from backend
+    async function loadReviews() {
+      const grid = document.getElementById('reviewGrid');
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading reviews...</p></div>';
+      
+      try {
+        const response = await API.getReviews({
+          page: currentPage,
+          per_page: 12,
+          sort: currentSort
+        });
+        
+        totalPages = response.pages;
+        
+        if (response.reviews.length === 0) {
+          grid.innerHTML = `
+            <div class="empty" style="grid-column: 1/-1">
+              <h2>No Reviews Found</h2>
+              <p>Be the first to share your thoughts!</p>
+              ${API.isAuthenticated() ? '<a href="submit.html">Submit a Review</a>' : '<a href="login.html">Login to Submit</a>'}
+            </div>
+          `;
+          document.getElementById('pagination').innerHTML = '';
+          return;
+        }
+        
+        renderReviews(response.reviews);
+        renderPagination();
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+        grid.innerHTML = `
+          <div class="empty" style="grid-column: 1/-1">
+            <h2>Error Loading Reviews</h2>
+            <p>${error.message}</p>
+            <button onclick="loadReviews()" style="margin-top:1rem; padding:.75rem 1.5rem; background:var(--accent); border:none; color:var(--bg-1); border-radius:8px; cursor:pointer; font-weight:600">
+              Try Again
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    // Render reviews
+    function renderReviews(reviews) {
+      const grid = document.getElementById('reviewGrid');
+      
+      grid.innerHTML = reviews.map(review => `
+        <div class="card" onclick="viewReview(${review.id})">
+          <div class="card-header">
+            <img class="card-cover" 
+                 src="${review.game.cover_url || 'assets/placeholder.png'}" 
+                 alt="${review.game.title} cover" 
+                 onerror="this.src='assets/placeholder.png'">
+            <div class="card-info">
+              <h3 class="card-title">${escapeHtml(review.title)}</h3>
+              <p class="card-game">${escapeHtml(review.game.title)}</p>
+            </div>
+          </div>
+          <div class="card-meta">
+            <span>🎮 ${escapeHtml(review.platform)}</span>
+            <span>⚡ Difficulty: ${review.difficulty}/5</span>
+            <span class="stars">${scoreToStars(review.score)}</span>
+          </div>
+          <div class="card-review">${escapeHtml(review.content)}</div>
+          <div class="card-footer">
+            <span class="card-author">by ${escapeHtml(review.author.username)}</span>
+            <span class="card-score">${review.score}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render pagination
+    function renderPagination() {
+      const pagination = document.getElementById('pagination');
+      
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+      html += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">← Prev</button>`;
+      
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+          html += `<button class="${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+          html += `<button disabled>...</button>`;
+        }
+      }
+      
+      html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Next →</button>`;
+      pagination.innerHTML = html;
+    }
+
+    // Change page
+    function changePage(page) {
+      currentPage = page;
+      loadReviews();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Handle search
+    function handleSearch(e) {
+      searchQuery = e.target.value.trim();
+      currentPage = 1;
+      // For now, we'll filter client-side, but you could implement backend search
+      loadReviews();
+    }
+
+    // Handle sort
+    function handleSort(e) {
+      currentSort = e.target.value;
+      currentPage = 1;
+      loadReviews();
+    }
+
+    // View review detail
+    function viewReview(id) {
+      window.location.href = `ReviewDetail.html?id=${id}`;
+    }
+
+    // Logout
+    function handleLogout() {
+      API.logout();
+      showNotification('Logged out successfully', 'success');
+      setTimeout(() => window.location.reload(), 1000);
+    }
+
+    // Helper: Convert score to stars
+    function scoreToStars(score) {
+      const stars = Math.round((score / 100) * 5);
+      return '★'.repeat(stars) + '☆'.repeat(5 - stars);
+    }
+
+    // Helper: Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Helper: Debounce function
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

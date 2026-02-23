@@ -1,0 +1,306 @@
+
+MetaBreak - Gaming Review Platform
+Project Overview
+MetaBreak is a full-stack gaming review platform with a complete backend API built with Flask, SQLite, and modern security features. Users can register, login, submit reviews, comment, vote, and browse a curated collection of popular games.
+Created by: Kylie Marxen (771874)
+Course: COSC 2156 Web Programming
+Date: December 2025
+ Features Implemented
+Core Backend Features ( All Required)
+
+User Authentication & Authorization
+
+JWT-based token authentication
+Password hashing with bcrypt
+Role-based access control (user, moderator, admin)
+Session management with 24-hour token expiration
+
+
+CRUD Operations
+
+Complete Create, Read, Update, Delete for all entities
+Users, Games, Reviews, Comments management
+Cascading deletes for data integrity
+
+
+Database Integration
+
+SQLite database with SQLAlchemy ORM
+Indexed columns for optimized queries
+Transaction management and rollback support
+Relationship management between entities
+
+
+RESTful API Endpoints
+
+20+ well-structured API endpoints
+Proper HTTP status codes (200, 201, 400, 401, 403, 404, 500)
+JSON request/response format
+Clear, consistent error messages
+
+
+Data Validation
+
+Server-side validation for all inputs
+Length constraints (username 3-80 chars, password 8+ chars)
+Type checking and range validation
+Foreign key validation
+
+
+
+Advanced Features (✅ All Implemented)
+
+File Uploads
+
+Game cover image uploads
+File type validation (PNG, JPG, JPEG, GIF, WEBP)
+Secure filename handling with werkzeug
+5MB file size limit
+Permission-based uploads (admin/moderator only)
+
+
+Search Functionality
+
+Real-time game search by title and studio
+Case-insensitive search with ILIKE
+Efficient database queries with LIMIT
+Debounced search for performance
+
+
+Caching with Redis (Optional)
+
+Game list caching (5 min TTL)
+Search results caching (10 min TTL)
+Dashboard statistics caching
+Automatic cache invalidation on updates
+Graceful fallback when Redis unavailable
+
+
+Rate Limiting
+
+Protection against API abuse
+Configurable limits per endpoint
+IP-based request tracking
+5 registrations/hour, 10 logins/minute limits
+
+
+Logging & Monitoring
+
+Rotating file logs (10MB max, 10 backups)
+Structured log format with timestamps
+Log levels (INFO, WARNING, ERROR)
+User action tracking for security audits
+
+
+
+Operational & Security Features (✅ All Implemented)
+
+Error Handling
+
+Centralized error handlers for 404, 500
+User-friendly error messages
+Detailed error logging for debugging
+Automatic database rollback on errors
+
+
+Security Measures
+
+SQL injection protection via ORM
+XSS protection with input validation
+CORS configuration for cross-origin requests
+Secure password storage (never plain text)
+JWT token expiration and validation
+
+
+Voting System
+
+Upvote/downvote functionality on reviews
+One vote per user per review constraint
+Vote changing capability
+Vote removal option (toggle)
+Real-time vote count updates
+
+
+Analytics Dashboard
+
+Total users, games, reviews, comments
+Top-rated games calculation
+Average score computation
+Review count per game
+Cached for performance
+
+
+Pagination
+
+Configurable page size (default 12 items)
+Total page calculation
+Efficient database queries with LIMIT/OFFSET
+Page metadata in responses
+
+
+
+Bonus Features (✅ 5+ Additional Features)
+
+Comment System
+
+Nested comments on reviews
+CRUD operations for comments
+Author-based delete permissions
+Real-time comment count updates
+
+
+Multiple Sort Options
+
+Sort by: newest, oldest, score (high/low), difficulty, popularity
+Backend-optimized sorting
+Maintains pagination state
+
+
+User Profile System
+
+User registration with email validation
+Profile information storage
+Review count per user
+Account creation timestamps
+
+
+Frontend Integration
+
+Complete JavaScript API client wrapper
+Real-time form validation
+Loading states and error handling
+Responsive, modern UI design
+
+
+Health Check Endpoint
+
+System status monitoring
+Database connection verification
+Cache availability check
+Timestamp tracking
+
+
+
+
+📁 Project Structure
+Web Application midterm/
+├── app.py                    # Main Flask backend application
+├── metabreak.db             # SQLite database (auto-generated)
+├── requirements.txt         # Python dependencies
+├── .env.example            # Environment variables template
+│
+├── Frontend Files
+│   ├── index.html          # Landing page
+│   ├── login.html          # User login
+│   ├── register.html       # User registration
+│   ├── reviews.html        # Browse all reviews
+│   ├── submit.html         # Submit new review
+│   ├── ReviewDetail.html   # Individual review detail
+│   │
+│   └── js/
+│       ├── api-client.js   # Backend API wrapper
+│       ├── app.js          # Utility functions
+│       ├── gamedata.js     # Game data seed
+│       ├── submit.js       # Submit form logic
+│       └── submitsearch.js # Game search logic
+│
+├── uploads/                # User-uploaded files
+│   └── covers/            # Game cover images
+│
+└── logs/                  # Application logs
+    └── metabreak.log      # Runtime logs
+
+    API Endpoints Reference
+Authentication
+
+POST /api/auth/register - Register new user
+POST /api/auth/login - User login
+GET /api/auth/me - Get current user (requires JWT)
+
+Games
+
+GET /api/games - List all games
+GET /api/games/search?q=query - Search games
+GET /api/games/{id} - Get single game
+
+Reviews
+
+GET /api/reviews?page=1&per_page=12&sort=newest - List reviews (with filters)
+GET /api/reviews/{id} - Get single review
+POST /api/reviews - Create review (requires JWT)
+PUT /api/reviews/{id} - Update review (requires JWT)
+DELETE /api/reviews/{id} - Delete review (requires JWT)
+
+Votes
+
+POST /api/reviews/{id}/vote - Vote on review (requires JWT)
+
+Comments
+
+GET /api/reviews/{id}/comments - Get comments for review
+POST /api/reviews/{id}/comments - Add comment (requires JWT)
+DELETE /api/comments/{id} - Delete comment (requires JWT)
+
+File Upload
+
+POST /api/upload/cover - Upload game cover (admin/moderator only)
+
+System
+
+GET /api/health - Health check
+GET /api/stats/dashboard - Dashboard statistics
+
+Database Schema
+Users Table
+
+id - Primary key
+username - Unique, 3-80 characters
+email - Unique, valid email format
+password_hash - Bcrypt hashed password
+role - user | moderator | admin
+is_active - Account status (boolean)
+created_at - Registration timestamp
+
+Games Table
+
+id - Primary key
+external_id - Unique game identifier
+title - Game name
+studio - Development studio
+release_year - Year published
+cover_url - Cover image path
+description - Game description
+created_at - Entry timestamp
+
+Reviews Table
+
+id - Primary key
+title - Review headline
+content - Full review text
+score - Rating (0-100)
+difficulty - Difficulty rating (1-5)
+platform - Gaming platform
+user_id - Foreign key → users.id
+game_id - Foreign key → games.id
+upvotes - Positive vote count
+downvotes - Negative vote count
+created_at - Creation timestamp
+updated_at - Last modified timestamp
+
+Comments Table
+
+id - Primary key
+content - Comment text
+user_id - Foreign key → users.id
+review_id - Foreign key → reviews.id
+created_at - Creation timestamp
+updated_at - Last modified timestamp
+
+Votes Table
+
+id - Primary key
+vote_type - 'upvote' | 'downvote'
+user_id - Foreign key → users.id
+review_id - Foreign key → reviews.id
+created_at - Vote timestamp
+Constraint: UNIQUE(user_id, review_id) - One vote per user per review

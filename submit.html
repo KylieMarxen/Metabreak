@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>MetaBreak – Submit Review</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1:#070b16; --bg-2:#0f1a2b; --bg-3:#151b31;
+      --neon:#5be3ff; --neon-2:#b05bff; --accent:#00ffc6;
+      --border:#273055; --text:#e8eeff; --muted:#a8b3d9;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg-1); color:var(--text);
+      font-family:Rajdhani,system-ui,sans-serif; min-height:100vh;
+    }
+
+    /* Header */
+    .header{
+      background:linear-gradient(180deg, rgba(15,26,43,.95), rgba(7,11,22,.85));
+      backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
+      padding:1rem 0; position:sticky; top:0; z-index:100;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);
+    }
+    .header-inner{
+      max-width:1200px; margin:0 auto; padding:0 1rem;
+      display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;
+    }
+    .logo{
+      font-family:Orbitron,sans-serif; font-weight:800; font-size:1.5rem;
+      color:var(--neon); text-decoration:none; letter-spacing:.08em;
+      text-shadow:0 0 10px rgba(91,227,255,.5);
+    }
+    .nav{display:flex; gap:.75rem; flex-wrap:wrap}
+    .nav a{
+      padding:.5rem 1rem; background:rgba(29,108,255,.1); border:1px solid rgba(29,108,255,.3);
+      color:var(--text); text-decoration:none; border-radius:8px; font-weight:600;
+      transition:all .2s ease;
+    }
+    .nav a:hover{background:rgba(29,108,255,.2); border-color:rgba(29,108,255,.5)}
+
+    .container{max-width:900px; margin:2rem auto; padding:0 1rem}
+    
+    .card{background:var(--bg-3); border:1px solid var(--border); border-radius:12px; padding:1.5rem; margin-bottom:1.5rem}
+    
+    h1{font-family:Orbitron,sans-serif; color:var(--neon); margin:0 0 .5rem}
+    .subtitle{color:var(--muted); margin:0 0 2rem}
+    
+    .form-row{display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem}
+    .form-row > *{flex:1; min-width:200px}
+    
+    .form-group{margin-bottom:1.5rem}
+    
+    label{display:block; margin-bottom:.5rem; color:var(--text); font-weight:600}
+    
+    input, select, textarea{
+      width:100%; padding:.75rem; background:var(--bg-1); border:1px solid var(--border);
+      color:var(--text); border-radius:8px; font:inherit; transition:all .2s ease;
+    }
+    
+    input:focus, select:focus, textarea:focus{
+      outline:none; border-color:var(--neon); box-shadow:0 0 8px rgba(91,227,255,.3);
+    }
+    
+    .btn{
+      padding:.75rem 1.5rem; border:none; border-radius:8px; font:inherit;
+      font-weight:600; cursor:pointer; transition:all .2s ease;
+    }
+    
+    .btn-primary{
+      background:var(--accent); color:var(--bg-1);
+    }
+    .btn-primary:hover{
+      transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,255,198,.4);
+    }
+    .btn-primary:disabled{
+      opacity:.5; cursor:not-allowed; transform:none;
+    }
+    
+    .btn-secondary{
+      background:transparent; border:1px solid var(--border); color:var(--text);
+    }
+    .btn-secondary:hover{background:rgba(91,227,255,.1)}
+    
+    .actions{display:flex; gap:1rem; align-items:center}
+    
+    .search-results{margin-top:1rem}
+    .game-item{
+      display:flex; gap:1rem; align-items:center; padding:.75rem;
+      background:var(--bg-1); border:1px solid var(--border); border-radius:8px;
+      margin-bottom:.5rem; cursor:pointer; transition:all .2s ease;
+    }
+    .game-item:hover{background:var(--bg-2); border-color:var(--neon)}
+    .game-cover{width:60px; height:60px; object-fit:cover; border-radius:6px}
+    .game-info{flex:1}
+    .game-title{font-weight:600; color:var(--text); margin:0}
+    .game-meta{font-size:.9rem; color:var(--muted); margin:.25rem 0 0}
+    
+    .selected-game{
+      display:flex; gap:1rem; align-items:center; padding:1rem;
+      background:rgba(91,227,255,.05); border:1px solid var(--neon); border-radius:8px;
+    }
+    
+    .hidden{display:none}
+    
+    .error{color:#ef4444; font-size:.9rem; margin-top:.5rem}
+    .success{
+      background:rgba(0,255,198,.1); border:1px solid var(--accent);
+      color:var(--accent); padding:1rem; border-radius:8px; margin-bottom:1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">METABREAK</a>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="reviews.html">Reviews</a>
+        <a href="submit.html">Submit Review</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Submit a Review</h1>
+    <p class="subtitle">Share your gaming experience with the community</p>
+
+    <div id="successMessage" class="success hidden"></div>
+
+    <!-- Step 1: Search for game -->
+    <div class="card" id="searchSection">
+      <h2 style="color:var(--neon); margin:0 0 1rem">Step 1: Select a Game</h2>
+      <div class="form-group">
+        <label for="gameSearch">Search for a game</label>
+        <input 
+          type="text" 
+          id="gameSearch" 
+          placeholder="Type at least 2 characters..."
+          autocomplete="off"
+        />
+      </div>
+      <div id="searchResults" class="search-results"></div>
+      
+      <div id="selectedGame" class="hidden"></div>
+    </div>
+
+    <!-- Step 2: Review form (hidden until game selected) -->
+    <form id="reviewForm" class="card hidden">
+      <h2 style="color:var(--neon); margin:0 0 1rem">Step 2: Write Your Review</h2>
+      
+      <input type="hidden" id="selectedGameId" />
+      
+      <div class="form-group">
+        <label for="reviewTitle">Review Title *</label>
+        <input 
+          type="text" 
+          id="reviewTitle" 
+          placeholder="Give your review a catchy title"
+          required
+        />
+      </div>
+      
+      <div class="form-row">
+        <div>
+          <label for="platform">Platform *</label>
+          <select id="platform" required>
+            <option value="">Select platform</option>
+            <option value="PC">PC</option>
+            <option value="PS5">PlayStation 5</option>
+            <option value="PS4">PlayStation 4</option>
+            <option value="Xbox Series X/S">Xbox Series X/S</option>
+            <option value="Xbox One">Xbox One</option>
+            <option value="Nintendo Switch">Nintendo Switch</option>
+            <option value="Mobile">Mobile</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="difficulty">Difficulty (1-5) *</label>
+          <input 
+            type="number" 
+            id="difficulty" 
+            min="1" 
+            max="5" 
+            placeholder="1 = Easy, 5 = Very Hard"
+            required
+          />
+        </div>
+        
+        <div>
+          <label for="score">Score (0-100) *</label>
+          <input 
+            type="number" 
+            id="score" 
+            min="0" 
+            max="100" 
+            placeholder="Your rating out of 100"
+            required
+          />
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="reviewContent">Your Review *</label>
+        <textarea 
+          id="reviewContent" 
+          rows="8" 
+          placeholder="Share your thoughts, experiences, and opinions about this game..."
+          required
+        ></textarea>
+      </div>
+      
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" id="submitBtn">
+          Submit Review
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+          Change Game
+        </button>
+        <a href="reviews.html" class="btn btn-secondary">Cancel</a>
+      </div>
+      
+      <div id="formError" class="error hidden"></div>
+    </form>
+  </main>
+
+  <script src="js/api-client.js"></script>
+  <script>
+    let selectedGame = null;
+    let searchTimeout = null;
+
+    // Check if user is logged in
+    if (!API.isAuthenticated()) {
+      alert('Please login to submit a review');
+      window.location.href = 'login.html';
+    }
+
+    // Game search
+    document.getElementById('gameSearch').addEventListener('input', async (e) => {
+      const query = e.target.value.trim();
+      const resultsDiv = document.getElementById('searchResults');
+      
+      if (query.length < 2) {
+        resultsDiv.innerHTML = '';
+        return;
+      }
+      
+      // Debounce search
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(async () => {
+        try {
+          resultsDiv.innerHTML = '<p style="color:var(--muted)">Searching...</p>';
+          
+          const games = await API.searchGames(query);
+          
+          if (games.length === 0) {
+            resultsDiv.innerHTML = '<p style="color:var(--muted)">No games found. Try a different search.</p>';
+            return;
+          }
+          
+          resultsDiv.innerHTML = games.map(game => `
+            <div class="game-item" onclick='selectGame(${JSON.stringify(game)})'>
+              <img class="game-cover" src="${game.cover_url || 'assets/placeholder.png'}" alt="${game.title}" onerror="this.src='assets/placeholder.png'">
+              <div class="game-info">
+                <p class="game-title">${game.title}</p>
+                <p class="game-meta">${game.studio || 'Unknown Studio'} • ${game.release_year || 'Unknown'}</p>
+              </div>
+            </div>
+          `).join('');
+        } catch (error) {
+          resultsDiv.innerHTML = `<p style="color:#ef4444">Error searching: ${error.message}</p>`;
+        }
+      }, 300);
+    });
+
+    // Select game
+    window.selectGame = function(game) {
+      selectedGame = game;
+      
+      document.getElementById('selectedGameId').value = game.id;
+      document.getElementById('searchResults').innerHTML = '';
+      document.getElementById('gameSearch').value = '';
+      
+      document.getElementById('selectedGame').innerHTML = `
+        <div class="selected-game">
+          <img class="game-cover" src="${game.cover_url || 'assets/placeholder.png'}" alt="${game.title}" onerror="this.src='assets/placeholder.png'">
+          <div class="game-info">
+            <p class="game-title">${game.title}</p>
+            <p class="game-meta">${game.studio || 'Unknown Studio'} • ${game.release_year || 'Unknown'}</p>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('selectedGame').classList.remove('hidden');
+      document.getElementById('reviewForm').classList.remove('hidden');
+      
+      // Scroll to form
+      document.getElementById('reviewForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    // Reset form
+    window.resetForm = function() {
+      selectedGame = null;
+      document.getElementById('selectedGame').innerHTML = '';
+      document.getElementById('selectedGame').classList.add('hidden');
+      document.getElementById('reviewForm').classList.add('hidden');
+      document.getElementById('reviewForm').reset();
+      document.getElementById('gameSearch').focus();
+    };
+
+    // Submit review
+    document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const errorDiv = document.getElementById('formError');
+      
+      errorDiv.classList.add('hidden');
+      
+      // Get form data
+      const reviewData = {
+        game_id: parseInt(document.getElementById('selectedGameId').value),
+        title: document.getElementById('reviewTitle').value.trim(),
+        content: document.getElementById('reviewContent').value.trim(),
+        platform: document.getElementById('platform').value,
+        difficulty: parseInt(document.getElementById('difficulty').value),
+        score: parseInt(document.getElementById('score').value)
+      };
+      
+      // Validation
+      if (!reviewData.title || !reviewData.content) {
+        errorDiv.textContent = 'Please fill in all required fields';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      
+      if (reviewData.difficulty < 1 || reviewData.difficulty > 5) {
+        errorDiv.textContent = 'Difficulty must be between 1 and 5';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      
+      if (reviewData.score < 0 || reviewData.score > 100) {
+        errorDiv.textContent = 'Score must be between 0 and 100';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+      
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+      
+      try {
+        const response = await API.createReview(reviewData);
+        
+        // Show success message
+        const successDiv = document.getElementById('successMessage');
+        successDiv.textContent = 'Review submitted successfully! Redirecting...';
+        successDiv.classList.remove('hidden');
+        
+        // Redirect after 1.5 seconds
+        setTimeout(() => {
+          window.location.href = 'reviews.html';
+        }, 1500);
+        
+      } catch (error) {
+        errorDiv.textContent = error.message || 'Failed to submit review. Please try again.';
+        errorDiv.classList.remove('hidden');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Review';
+      }
+    });
+  </script>
+</body>
+</html>
