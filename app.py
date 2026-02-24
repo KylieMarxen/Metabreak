@@ -804,6 +804,14 @@ def get_dashboard_stats():
     
     return jsonify(result), 200
 
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:filename>')
+def static_files(filename):
+    return send_from_directory('.', filename)
+
 # ==================== HEALTH CHECK ====================
 
 @app.route('/api/health', methods=['GET'])
