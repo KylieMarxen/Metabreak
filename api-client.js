@@ -1,7 +1,7 @@
 // js/api-client.js
 // API client for MetaBreak backend integration
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 
 class MetaBreakAPI {
   constructor() {
