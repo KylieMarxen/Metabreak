@@ -475,7 +475,7 @@ def get_review(review_id):
 @app.route('/api/reviews', methods=['POST'])
 @jwt_required()
 def create_review():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     data = request.get_json()
     
     # Validation
@@ -525,7 +525,7 @@ def create_review():
 @app.route('/api/reviews/<int:review_id>', methods=['PUT'])
 @jwt_required()
 def update_review(review_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     review = Review.query.get_or_404(review_id)
     
@@ -568,7 +568,7 @@ def update_review(review_id):
 @app.route('/api/reviews/<int:review_id>', methods=['DELETE'])
 @jwt_required()
 def delete_review(review_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     review = Review.query.get_or_404(review_id)
     
@@ -596,7 +596,7 @@ def delete_review(review_id):
 @app.route('/api/reviews/<int:review_id>/vote', methods=['POST'])
 @jwt_required()
 def vote_review(review_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     review = Review.query.get_or_404(review_id)
     data = request.get_json()
     
@@ -663,7 +663,7 @@ def get_comments(review_id):
 @app.route('/api/reviews/<int:review_id>/comments', methods=['POST'])
 @jwt_required()
 def create_comment(review_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     review = Review.query.get_or_404(review_id)
     data = request.get_json()
     
@@ -698,7 +698,7 @@ def create_comment(review_id):
 @app.route('/api/comments/<int:comment_id>', methods=['DELETE'])
 @jwt_required()
 def delete_comment(comment_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     comment = Comment.query.get_or_404(comment_id)
     
@@ -722,7 +722,7 @@ def delete_comment(comment_id):
 @app.route('/api/upload/cover', methods=['POST'])
 @jwt_required()
 def upload_cover():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     
     if user.role not in ['admin', 'moderator']:
