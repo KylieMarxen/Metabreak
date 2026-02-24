@@ -3,7 +3,6 @@ MetaBreak - Gaming Review Platform
 Project Overview
 MetaBreak is a full-stack gaming review platform with a complete backend API built with Flask, SQLite, and modern security features. Users can register, login, submit reviews, comment, vote, and browse a curated collection of popular games.
 Created by: Kylie Marxen (771874)
-Course: COSC 2156 Web Programming
 Date: December 2025
  Features Implemented
 Core Backend Features ( All Required)
@@ -48,7 +47,7 @@ Foreign key validation
 
 
 
-Advanced Features (✅ All Implemented)
+Advanced Features
 
 File Uploads
 
