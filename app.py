@@ -45,6 +45,7 @@ app.after_request(add_cors_headers)
 # Handle OPTIONS
 @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
 @app.route('/<path:path>', methods=['OPTIONS'])
+
 def handle_options(path):
     response = app.make_default_options_response()
     response = add_cors_headers(response)
@@ -355,6 +356,24 @@ def get_current_user():
         return jsonify({'error': 'User not found'}), 404
     
     return jsonify(user.to_dict()), 200
+
+@app.route('/')
+def serve_index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/<path:filename>')
+def serve_file(filename):
+    # Serve HTML files
+    if filename.endswith('.html'):
+        return send_from_directory('.', filename)
+    # Serve JS files
+    elif filename.startswith('js/'):
+        return send_from_directory('.', filename)
+    # Serve other static files
+    elif os.path.exists(filename):
+        return send_from_directory('.', filename)
+    # Default to index
+    return send_from_directory('.', 'index.html')
 
 # ==================== GAME ROUTES ====================
 
