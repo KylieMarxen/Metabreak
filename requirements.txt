@@ -7,4 +7,4 @@ flask-limiter==3.5.0
 werkzeug==3.0.3
 redis==5.0.4
 gunicorn==22.0.0
-psycopg[binary]==3.2.4
+psycopg[binary]==3.3.3
